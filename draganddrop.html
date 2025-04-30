@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ドラッグ＆ドロップの練習</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      user-select: none;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .icon {
+      width: 60px;
+      height: 60px;
+      background-color: #ccc;
+      text-align: center;
+      line-height: 60px;
+      margin: 10px;
+      display: inline-block;
+      cursor: grab;
+    }
+
+    .trash {
+      width: 100px;
+      height: 100px;
+      background-color: #e74c3c;
+      color: white;
+      text-align: center;
+      line-height: 100px;
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .trash.hovered {
+      background-color: #c0392b;
+    }
+
+    #status {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>ドラッグ＆ドロップの練習</h1>
+<p style="text-align:center;">アイコンをドラッグして、右下のゴミ箱にドロップしてください。</p>
+
+<div id="iconContainer">
+  <div class="icon" draggable="true" id="icon1">A</div>
+  <div class="icon" draggable="true" id="icon2">B</div>
+  <div class="icon" draggable="true" id="icon3">C</div>
+</div>
+
+<div class="trash" id="trash">ゴミ箱</div>
+<div id="status"></div>
+
+<script>
+  const trash = document.getElementById('trash');
+  const icons = document.querySelectorAll('.icon');
+  const status = document.getElementById('status');
+
+  icons.forEach(icon => {
+    icon.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', icon.id);
+      status.textContent = `${icon.textContent} をドラッグ中...`;
+    });
+  });
+
+  trash.addEventListener('dragover', (e) => {
+    e.preventDefault(); // ドロップ許可
+    trash.classList.add('hovered');
+  });
+
+  trash.addEventListener('dragleave', () => {
+    trash.classList.remove('hovered');
+  });
+
+  trash.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    const icon = document.getElementById(id);
+    if (icon) {
+      icon.remove(); // アイコンを削除
+      status.textContent = `${icon.textContent} を削除しました。`;
+      trash.classList.remove('hovered');
+    }
+  });
+</script>
+
+</body>
+</html>
