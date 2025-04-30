@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>範囲選択の練習</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      user-select: none;
+    }
+
+    .icon {
+      width: 60px;
+      height: 60px;
+      background-color: #ccc;
+      display: inline-block;
+      text-align: center;
+      line-height: 60px;
+      border: 2px solid transparent;
+      transition: border 0.2s;
+      position: absolute;
+    }
+
+    .icon.selected {
+      border: 2px solid #3498db;
+      background-color: #ecf0f1;
+    }
+
+    #selectBox {
+      position: absolute;
+      border: 2px dashed #3498db;
+      background-color: rgba(52, 152, 219, 0.2);
+      display: none;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    #container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      border: 1px solid #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<h1>範囲選択の練習</h1>
+<p>マウスをドラッグして、複数のアイコンを選択しましょう。</p>
+
+<div id="container">
+  <div id="selectBox"></div>
+
+  <!-- アイコンたち -->
+  <div class="icon" style="top:30px; left:30px;">A</div>
+  <div class="icon" style="top:30px; left:120px;">B</div>
+  <div class="icon" style="top:120px; left:60px;">C</div>
+  <div class="icon" style="top:180px; left:150px;">D</div>
+  <div class="icon" style="top:100px; left:200px;">E</div>
+</div>
+
+<script>
+  const container = document.getElementById('container');
+  const selectBox = document.getElementById('selectBox');
+  const icons = document.querySelectorAll('.icon');
+
+  let startX, startY;
+
+  container.addEventListener('mousedown', (e) => {
+    if (e.target !== container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    startX = e.clientX - containerRect.left;
+    startY = e.clientY - containerRect.top;
+
+    selectBox.style.left = `${startX}px`;
+    selectBox.style.top = `${startY}px`;
+    selectBox.style.width = '0px';
+    selectBox.style.height = '0px';
+    selectBox.style.display = 'block';
+
+    function onMouseMove(e) {
+      const currentX = e.clientX - containerRect.left;
+      const currentY = e.clientY - containerRect.top;
+
+      const x = Math.min(startX, currentX);
+      const y = Math.min(startY, currentY);
+      const w = Math.abs(currentX - startX);
+      const h = Math.abs(currentY - startY);
+
+      selectBox.style.left = `${x}px`;
+      selectBox.style.top = `${y}px`;
+      selectBox.style.width = `${w}px`;
+      selectBox.style.height = `${h}px`;
+
+      const selectRect = selectBox.getBoundingClientRect();
+
+      icons.forEach(icon => {
+        const iconRect = icon.getBoundingClientRect();
+        const isOverlap = !(
+          selectRect.right < iconRect.left ||
+          selectRect.left > iconRect.right ||
+          selectRect.bottom < iconRect.top ||
+          selectRect.top > iconRect.bottom
+        );
+
+        icon.classList.toggle('selected', isOverlap);
+      });
+    }
+
+    function onMouseUp() {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      selectBox.style.display = 'none';
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+</script>
+
+</body>
+</html>
